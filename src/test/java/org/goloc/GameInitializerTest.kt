@@ -12,7 +12,7 @@ class GameInitializerTest {
 
         val initializer = GameInitializer(columns, cells)
 
-        assertThat(initializer.columns).isEqualTo(2)
+        assertThat(initializer.numberOfColumns).isEqualTo(2)
     }
 
     @Test
@@ -22,12 +22,12 @@ class GameInitializerTest {
 
         val initializer = GameInitializer(columns, cells)
 
-        val expectedFirstRow  = GameRow(1, listOf(GameCell(0), GameCell(1)))
-        val expectedSecondRow = GameRow(1, listOf(GameCell(1), GameCell(0)))
+        val expectedFirstRow  = GameRow(listOf(GameCell(0), GameCell(1)))
+        val expectedSecondRow = GameRow(listOf(GameCell(1), GameCell(0)))
 
         val expectedRows = listOf(expectedFirstRow, expectedSecondRow)
 
-        assertThat(initializer.rows).isEqualTo(expectedRows)
+        assertThat(initializer.gameRows).isEqualTo(expectedRows)
     }
 }
 

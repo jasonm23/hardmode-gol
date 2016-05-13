@@ -2,37 +2,44 @@ package org.goloc
 
 import java.util.*
 
-class GameInitializer(numberOfColumns: String, cellData: String) {
+fun Char.stringToInt(): Int {
+    return toString().toInt()
+}
 
-    val columns: Int
-    var rows: List<GameRow> = emptyList()
+fun String.toListOfParsedInts():List<Int> {
+    return toCharArray().map{it.stringToInt()}
+}
+
+infix fun <T>Int.groupsFrom(list: List<T>): List<List<T>> {
+
+    var numberOfRows = list.size / this
+    var partionedLists = ArrayList<List<T>>()
+    var range = 0..numberOfRows - 1
+
+    for (i in range) {
+        val startIndex = i * this;
+        val endIndex = startIndex + this;
+        val subList = list.subList(startIndex, endIndex)
+        partionedLists.add(subList)
+    }
+
+    return partionedLists.toList()
+}
+
+class GameInitializer(columns: String, cellData: String) {
+    val numberOfColumns: Int
+    var gameRows: List<GameRow> = emptyList()
 
     init {
-        columns = numberOfColumns.toInt()
-        rows = parseCellData(cellData)
+        numberOfColumns = columns.toInt()
+        gameRows = parseCellData(cellData)
     }
 
-    private fun parseCellData(cellData: String) : List<GameRow> {
-        val chars = cellData.toCharArray()
-        val partitionedCells = partition(chars.toList(), columns)
-        return partitionedCells.map{ GameRow(it) }
-    }
-
-    private fun partition(list: List<Char>, n: Int): List<List<Char>> {
-
-        var numberOfRows = list.size / n
-
-        var partionedLists = ArrayList<List<Char>>()
-
-        var range = 0..numberOfRows-1
-
-        for(i in range)  {
-            val startIndex = i * n;
-            val endIndex = startIndex + n;
-            val subList = list.subList(startIndex, endIndex)
-            partionedLists.add(subList)
+    private fun parseCellData(cellData: String): List<GameRow> {
+        val cellValues = cellData.toListOfParsedInts()
+        return (numberOfColumns groupsFrom cellValues).map {
+            GameRow.withCellValues(it)
         }
-        return partionedLists.toList()
     }
 }
 
@@ -44,11 +51,7 @@ class GameCell {
         this.life = life
     }
 
-    constructor(lifeAsChar: Char) {
-        life = lifeAsChar.toInt()
-    }
-
-    override fun equals(other: Any?): Boolean{
+    override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is GameCell) return false
 
@@ -57,27 +60,20 @@ class GameCell {
         return true
     }
 
-    override fun hashCode(): Int{
+    override fun hashCode(): Int {
         return life
     }
-
-
 }
 
-class GameRow {
+class GameRow(val cells: List<GameCell>) {
 
-    val cells: List<GameCell>
-
-    // FIXME: I'm very sad ...
-    constructor(duck: Int, listOf: List<GameCell>) {
-        this.cells = listOf
+    companion object {
+        fun withCellValues(values: List<Int>): GameRow {
+            return GameRow(values.map(::GameCell))
+        }
     }
 
-    constructor(listOf: List<Char>) {
-        this.cells = listOf.map{ GameCell(it) }
-    }
-
-    override fun equals(other: Any?): Boolean{
+    override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is GameRow) return false
 
@@ -86,9 +82,7 @@ class GameRow {
         return true
     }
 
-    override fun hashCode(): Int{
+    override fun hashCode(): Int {
         return cells.hashCode()
     }
-
-
 }
